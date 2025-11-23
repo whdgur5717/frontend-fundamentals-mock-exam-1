@@ -8,13 +8,13 @@ import { Tabs, TabsContent } from './components/Tabs';
 
 export function SavingsCalculatorPage() {
   const [calculationFormState, setCalculationFormState] = useState<CalculationFormState>({
-    targetAmount: '0',
-    monthlyAmount: '0',
+    targetAmount: 0,
+    monthlyAmount: 0,
     availableTerms: '12',
   });
 
   const selectSavingsProductsByForm = (products: SavingsProduct[]) => {
-    const monthly = Number(calculationFormState.monthlyAmount);
+    const monthly = calculationFormState.monthlyAmount;
     const term = Number(calculationFormState.availableTerms);
     return products.filter(
       p => p.minMonthlyAmount < monthly && monthly < p.maxMonthlyAmount && term === p.availableTerms
@@ -30,9 +30,9 @@ export function SavingsCalculatorPage() {
   const selectedProduct = savingsProducts.find(product => product?.id === selectedProductId);
 
   //시간부족으로 일단 하드코딩..
-  const monthly = Number(calculationFormState.monthlyAmount);
+  const monthly = calculationFormState.monthlyAmount;
   const term = Number(calculationFormState.availableTerms);
-  const targetAmountNum = Number(calculationFormState.targetAmount);
+  const targetAmountNum = calculationFormState.targetAmount;
   const annualRate = selectedProduct?.annualRate ?? 0;
 
   const 예상_수익_금액 = monthly * term * (1 + annualRate * 0.5);

@@ -1,5 +1,5 @@
 export type CalculationFormState = {
-  targetAmount: string;
-  monthlyAmount: string;
+  targetAmount: number;
+  monthlyAmount: number;
   availableTerms: string;
 };
