@@ -2,19 +2,9 @@ import type { CalculationFormState } from './type';
 import { useSuspenseQuery } from '@tanstack/react-query';
 import { getSavingsProuectsQuery, type SavingsProduct } from 'entities/savings/api';
 import { useState } from 'react';
-import {
-  Assets,
-  Border,
-  colors,
-  ListHeader,
-  ListRow,
-  NavigationBar,
-  SelectBottomSheet,
-  Spacing,
-  Tab,
-  TextField,
-} from 'tosslib';
+import { Border, NavigationBar, Spacing } from 'tosslib';
 import { CalculatorForm } from './components/CalculatorForm';
+import { Tabs } from './components/Tabs';
 
 export function SavingsCalculatorPage() {
   const [calculationFormState, setCalculationFormState] = useState<CalculationFormState>({
@@ -61,6 +51,12 @@ export function SavingsCalculatorPage() {
       <Spacing size={24} />
       <Border height={16} />
       <Spacing size={8} />
+
+      <Tabs
+        savingsProducts={savingsProducts}
+        selectedProductId={selectedProductId}
+        setSelectedProductId={setSelectedProductId}
+      />
 
       <Spacing size={40} />
 
