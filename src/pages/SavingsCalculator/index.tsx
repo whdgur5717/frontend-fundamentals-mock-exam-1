@@ -1,17 +1,30 @@
 import type { CalculationFormState } from './type';
 import { useSuspenseQuery } from '@tanstack/react-query';
-import { getSavingsProuectsQuery } from 'entities/savings/api';
+import { getSavingsProuectsQuery, type SavingsProduct } from 'entities/savings/api';
 import { useState } from 'react';
 import { Assets, Border, colors, ListRow, NavigationBar, SelectBottomSheet, Spacing, Tab, TextField } from 'tosslib';
 
 export function SavingsCalculatorPage() {
-  const { data: savingsProudcts } = useSuspenseQuery({ ...getSavingsProuectsQuery });
-
   const [calculationFormState, setCalculationFormState] = useState<CalculationFormState>({
     targetAmount: '0',
     monthlyAmount: '0',
     availableTerms: '12',
   });
+
+  const selectSavingsProductsByForm = (products: SavingsProduct[]) => {
+    const monthly = Number(calculationFormState.monthlyAmount);
+    const term = Number(calculationFormState.availableTerms);
+    return products.filter(
+      p => p.minMonthlyAmount < monthly && monthly < p.maxMonthlyAmount && term === p.availableTerms
+    );
+  };
+
+  const { data: savingsProducts } = useSuspenseQuery({
+    ...getSavingsProuectsQuery,
+    select: selectSavingsProductsByForm,
+  });
+
+  const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
 
   return (
     <>
@@ -38,7 +51,7 @@ export function SavingsCalculatorPage() {
       <SelectBottomSheet
         label="저축 기간"
         title="저축 기간을 선택해주세요"
-        value={'12'}
+        value={calculationFormState.availableTerms}
         onChange={e => {
           setCalculationFormState({ ...calculationFormState, availableTerms: e });
         }}
@@ -61,35 +74,26 @@ export function SavingsCalculatorPage() {
         </Tab.Item>
       </Tab>
 
-      <ListRow
-        contents={
-          <ListRow.Texts
-            type="3RowTypeA"
-            top={'기본 정기적금'}
-            topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
-            middle={'연 이자율: 3.2%'}
-            middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-            bottom={'100,000원 ~ 500,000원 | 12개월'}
-            bottomProps={{ fontSize: 13, color: colors.grey600 }}
-          />
-        }
-        right={<Assets.Icon name="icon-check-circle-green" />}
-        onClick={() => {}}
-      />
-      <ListRow
-        contents={
-          <ListRow.Texts
-            type="3RowTypeA"
-            top={'고급 정기적금'}
-            topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
-            middle={'연 이자율: 2.8%'}
-            middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
-            bottom={'50,000원 ~ 1,000,000원 | 24개월'}
-            bottomProps={{ fontSize: 13, color: colors.grey600 }}
-          />
-        }
-        onClick={() => {}}
-      />
+      {savingsProducts?.map(product => (
+        <ListRow
+          key={product.id}
+          contents={
+            <ListRow.Texts
+              type="3RowTypeA"
+              top={product.name}
+              topProps={{ fontSize: 16, fontWeight: 'bold', color: colors.grey900 }}
+              middle={`연 이자율: ${product.annualRate}%`}
+              middleProps={{ fontSize: 14, color: colors.blue600, fontWeight: 'medium' }}
+              bottom={''}
+              bottomProps={{ fontSize: 13, color: colors.grey600 }}
+            />
+          }
+          right={selectedProductId === product.id ? <Assets.Icon name="icon-check-circle-green" /> : undefined}
+          onClick={() => {
+            setSelectedProductId(product.id);
+          }}
+        />
+      ))}
 
       {/* 아래는 계산 결과 탭 내용이에요. 계산 결과 탭을 구현할 때 주석을 해제해주세요. */}
       {/* <Spacing size={8} />
